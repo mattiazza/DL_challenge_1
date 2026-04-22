@@ -22,7 +22,7 @@ Multi-label classification of celebrity facial attributes from images. Labels: `
 
 Data lives in `data/` (gitignored, downloaded via `kagglehub`):
 ```
-data/competitions/unipd-deep-learning-2026-challenge-1/
+data/
 ├── train_data.csv      # id + 9 attribute columns
 ├── train_images/       # .jpg files
 └── test_images/        # .jpg files for submission
