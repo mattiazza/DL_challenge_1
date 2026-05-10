@@ -38,14 +38,12 @@
    * NO softmax applied — CrossEntropyLoss handles it.  
                                                                                                                                    
 
-### ARCHITECTURE  
-
-**backbone:**   shared CNN layers (conv → activation → maxpool, repeated)
-            accepts configurable filters, kernel sizes, pool sizes, activations  
-
-**binary_head:** nn.Linear(backbone_out_dim, 8)  
-
-**class_head:** nn.Linear(backbone_out_dim, 501)  
+### ARCHITECTURE 
+|||
+|---|---|
+|**backbone:** |  shared CNN layers (conv → activation → maxpool, repeated) → flatten → FC → activation → dropout <br> accepts configurable filters, kernel sizes, pool sizes, activations, FC output size, FC's activation, dropout rate|
+| **binary_head:** | nn.Linear(backbone_out_dim, 8) | 
+| **class_head:** | nn.Linear(backbone_out_dim, 501) |  
                                                                                                                                    
 
 ### CONSTRUCTOR PARAMETERS  
@@ -59,6 +57,12 @@
 **max_pool_sizes** : _list[tuple]_ — pool (H, W) per layer; (1,1) = no pooling 
 
 **act_fs**         : _list[fn]_    — activation function per conv layer 
+
+**fc_out**         : _int_         — number of output features in final FC layer  
+
+**fc_act**         : _fn_          — FC's activation function  
+
+**dp_rate**        : _int_         — dropout rate  
 
                
 ### INVARIANTS  
