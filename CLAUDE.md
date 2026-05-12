@@ -42,7 +42,9 @@ path = kagglehub.competition_download("unipd-deep-learning-2026-challenge-1")
 Global constants: `NUM_BINARY = 8`, `NUM_CLASSES = 501`.
 
 ### `CelebDataset` (PyTorch `Dataset`)
-- Constructor: `CelebDataset(csv_file: Path, img_dir: Path, transform=None)`
+- Constructor: `CelebDataset(img_dir: Path, csv_file: Path | None = None, transform=None, test: bool = False)`
+  - `csv_file` is required when `test=False`; omit it when `test=True` (no labels available)
+  - `test=True`: skips CSV loading, `__getitem__` returns `(image_tensor, id_str)` instead of `(image_tensor, labels)`
   - Default transform: `ToTensor()` if none provided
 - Loads 20,000 samples; split 80/20 via `random_split` → 16K train / 4K val
 - Returns `(image_tensor: [3, 60, 48], labels: np.ndarray[9, float32])`
@@ -59,6 +61,7 @@ act_fs: list[Callable]        # activation per conv layer
 fc_out: int = 2048            # FC bottleneck output dimension
 fc_act: Callable = F.relu     # FC bottleneck activation
 dp_rate: float = 0.5          # dropout rate after FC bottleneck
+verbose: bool = False         # print layer output shapes during forward
 ```
 Architecture: shared conv backbone (all `padding='same'`) → flatten → `Linear → fc_act → Dropout` → two heads:
 - `binary_head`: `Linear(fc_out, 8)` — raw logits, no sigmoid
@@ -85,17 +88,21 @@ def train(
 - Binary accuracy: per-sample mean of 8 attribute predictions; classification accuracy: top-1 argmax
 - Returns 6-tuple of per-epoch lists: `loss_train, bin_acc_train, cls_acc_train, loss_val, bin_acc_val, cls_acc_val`
 
-### `test(model, dataloader)`
-Prints combined loss, binary attribute accuracy, and celebrity ID accuracy. No default dataloader — must be passed explicitly.
-
 ### `plot_learning_acc_and_loss()`
 ```python
 plot_learning_acc_and_loss(loss_tr, bin_acc_tr, cls_acc_tr, loss_val, bin_acc_val, cls_acc_val)
 ```
 Renders 3 subplots (Loss, Binary Accuracy, Classification Accuracy) from the 6-tuple returned by `train()`.
 
-### Submission cell
-Generates `submissions/<name>.csv` using Polars, matching the `train_data.csv` column schema (`id` + attribute columns), with test image IDs (filename without `.jpg`).
+### `submit()`
+```python
+def submit(dataloader_test, model, columns_name,
+           output_path=Path("submissions/submission.csv"))
+```
+- Runs model in eval mode; `columns_name` is the full column list from `train_data.csv` (`["id", ...]`)
+- Binary predictions: `sigmoid(bin_logits) >= 0.5` → int
+- Celebrity prediction: `argmax(cls_logits)`
+- Writes a Polars DataFrame to `output_path` matching the `train_data.csv` schema
 
 ## Specs
 

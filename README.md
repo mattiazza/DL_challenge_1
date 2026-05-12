@@ -1,38 +1,39 @@
 # Challenge 1 - Deep Learning Course
 
-This repository contains my solution workspace for the first Deep Learning course challenge. The project is based on the Kaggle competition described in [overview_challenge_1.md](overview_challenge_1.md), where the goal is to train a CNN from scratch to predict both facial attributes and celebrity identity from face images.
+This repository contains my solution workspace for the first Deep Learning course challenge. The competition asks for a CNN trained from scratch to predict both facial attributes and celebrity identity from face images.
 
-## Project Goal
+## Goal
 
-The model must solve a multi-task image classification problem:
+The task is a multi-label, multi-class image classification problem:
 
-- predict 8 binary facial attributes such as `Smiling`, `Young`, `No_Beard` and `Wearing_Hat`
+- predict 8 binary facial attributes: `No_Beard`, `Young`, `Mouth_Slightly_Open`, `Smiling`, `Male`, `Wavy_Hair`, `Black_Hair`, `Wearing_Hat
 - predict the celebrity identity among 500 + 1 classes, where the extra class represents `other`
 
-The public evaluation combines attribute prediction quality and celebrity classification quality. The course overview describes this as the average of the attribute F1 score and the celebrity macro F1 score.
+The official score is the average of two metrics: the mean F1 over the binary attributes and the macro F1 over the celebrity classes. Full challenge rules are in [overview_challenge_1.md](overview_challenge_1.md).
 
-## Challenge Constraints
+## Constraints
 
-The project follows the rules of the course challenge:
+The solution must respect the course rules:
 
-- the network must be explicitly implemented as a CNN
+- the model must be an explicitly coded CNN
 - training must happen inside the notebook used for submission
 - pre-trained models are not allowed
 - external datasets are not allowed
-- data augmentation and regularization techniques are allowed and encouraged
+- augmentation, dropout, early stopping, and other regularization methods are allowed and encouraged
 
-## Repository Structure
+## Main Files
 
-- [Challenge1_MattiaPiazza.ipynb](Challenge1_MattiaPiazza.ipynb) - main notebook with data loading, model definition, training, validation, and submission generation
-- [overview_challenge_1.md](overview_challenge_1.md) - challenge description, rules, evaluation, and submission requirements
-- [specs/model.md](specs/model.md) - model specification for the multi-task CNN
-- [specs/train.md](specs/train.md) - training-loop specification and metric definitions
-- [data/](data/) - competition data directory, downloaded locally and ignored by git
-- [submissions/](submissions/) - generated submission files
+- [Challenge1_MattiaPiazza.ipynb](Challenge1_MattiaPiazza.ipynb) is the main notebook with data loading, model definition, training, validation, and submission generation
+- [overview_challenge_1.md](overview_challenge_1.md) contains the challenge description, rules, evaluation, and delivery instructions
+- [specs/model.md](specs/model.md) defines the `MultiTaskCelebNet` architecture contract
+- [specs/train.md](specs/train.md) defines the `train()` loop contract and metric semantics
+- [specs/submission.md](specs/submission.md) defines the submission-generation contract
+- [data/](data/) stores the competition data locally and is ignored by git
+- [submissions/](submissions/) stores generated CSV files
 
 ## Data Layout
 
-The expected data structure is:
+The expected local structure is:
 
 ```text
 data/
@@ -41,18 +42,18 @@ data/
 └── test_images/
 ```
 
-`train_data.csv` contains the image id plus the label columns. The notebook uses the image ids to load the corresponding `.jpg` files from disk in `train_images/` and `test_images/`.
+`train_data.csv` contains the image id plus the 9 label columns. The notebook uses the image ids to load the matching `.jpg` files from `train_images/` and `test_images/`.
 
 ## Notebook Workflow
 
-The notebook is intended to be executed end to end:
+The notebook is meant to be run end to end:
 
 1. load and inspect the training data
-2. define the `CelebDataset` class for image and label loading
+2. define the `CelebDataset` dataset
 3. build the CNN architecture from scratch
 4. train and validate the model
-5. evaluate on the validation or test split
-6. generate a Kaggle submission file in `submissions/`
+5. evaluate on the validation split or test split
+6. generate a Kaggle submission CSV in `submissions/`
 
 ## Local Setup
 
@@ -67,4 +68,4 @@ The Kaggle dataset can be downloaded via `kagglehub.competition_download('unipd-
 
 ## Submission Format
 
-The final output must be a CSV file with the same column structure as `train_data.csv`, using the test image ids and the predicted labels for each row. The submission file should be written to the `submissions/` folder, and the final notebook version must be shared on Kaggle.
+The final output must be a CSV with the same column order as `train_data.csv`, using test image ids and predicted labels. The notebook writes the file to `submissions/`, and the final notebook version must be shared on Kaggle for evaluation.
